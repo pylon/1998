@@ -1,5 +1,7 @@
 package com.nineteenninetyeight;
 
+import com.nineteenninetyeight.devicesettings.*;
+
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
@@ -25,8 +27,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new VoicePackage(),
-            new TextToSpeechPackage()
+          new VoicePackage(),
+          new TextToSpeechPackage(),
+          new DeviceSettingsPackage()
       );
     }
   };

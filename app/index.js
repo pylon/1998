@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {
   Button,
+  NativeModules,
   StyleSheet,
   Text,
   View
@@ -13,7 +14,23 @@ export default class NineteenNinetyEight extends Component {
     super(props)
     this.state = {
       status: 'waiting',
-      results: []
+      support: '',
+      results: ['In 1998 The Undertaker threw Mankind']
+    }
+    this.onIsAvailable = this.onIsAvailable.bind(this)
+  }
+
+  componentDidMount () {
+    Voice.isAvailable(this.onIsAvailable)
+  }
+
+  onIsAvailable (result) {
+    if (result && NativeModules.DeviceSettings !== undefined) {
+      this.setState({ support: NativeModules.DeviceSettings.voice_recognition_service })
+    } else if (result) {
+      this.setState({ support: true })
+    } else {
+      this.setState({ support: result })
     }
   }
 
@@ -32,6 +49,9 @@ export default class NineteenNinetyEight extends Component {
           In 1998...
         </Text>
         <TalkButton statusChange={(status) => this.onStatusChange(status)} resultsChange={(results) => this.onResultsChange(results)} />
+        <Text style={styles.instructions}>
+          {`ASR: ${this.state.support}`}
+        </Text>
         <Text style={styles.stat}>
           {`Status: ${this.state.status}`}
         </Text>
