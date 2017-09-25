@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import { Component } from 'react'
 import {
   Button,
   NativeModules,
@@ -160,9 +160,7 @@ class SpeakButton extends Component {
        results (array of string, sorted by confidence)
    */
 
-  constructor (props) {
-    super(props)
-    // speech events
+  componentDidMount () {
     Tts.addEventListener('tts-start', (event) => console.log('tts-start', event))
     Tts.addEventListener('tts-finish', (event) => console.log('tts-finish', event))
     Tts.addEventListener('tts-cancel', (event) => console.log('cancel', event))
