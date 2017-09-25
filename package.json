@@ -1,0 +1,45 @@
+{
+	"name": "NineteenNinetyEight",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"lint": "eslint .",
+		"lint:fix": "eslint --fix .",
+		"start": "node node_modules/react-native/local-cli/cli.js start",
+		"test": "jest"
+	},
+	"dependencies": {
+		"react": "16.0.0-alpha.12",
+		"react-native": "0.47.2",
+		"react-native-tts": "^1.4.0",
+		"react-native-voice": "^0.1.12"
+	},
+	"devDependencies": {
+		"babel-jest": "20.0.3",
+		"babel-preset-react-native": "2.0.1",
+		"eslint": "^4.4.1",
+		"eslint-config-standard": "^10.2.1",
+		"eslint-config-standard-jsx": "^4.0.1",
+		"eslint-plugin-import": "^2.7.0",
+		"eslint-plugin-node": "^5.1.1",
+		"eslint-plugin-promise": "^3.5.0",
+		"eslint-plugin-react": "^7.0.1",
+		"eslint-plugin-standard": "^3.0.1",
+		"jest": "20.0.4",
+		"react-test-renderer": "16.0.0-alpha.12"
+	},
+	"eslintConfig": {
+		"extends": [
+			"standard",
+			"standard-jsx"
+		],
+		"globals": {
+			"fetch": false,
+			"WebSocket": false,
+			"performanceNow": false
+		}
+	},
+	"jest": {
+		"preset": "react-native"
+	}
+}
