@@ -33,10 +33,10 @@ React Native, using React Native Voice and React Native TTS.
 
 OS  | ASR | TTS | Status | Devices
 --- | --- | --- | ------ | -------
-iOS | ✅ | ✅ | Fully Supported | iPhone 6S, iPad Mini 2
-Android 7+ | ✅ | ✅ | Fully Supported | Google Pixel
-FireOS | ✅ | ✅ | Android SpeechRecognizer unsupported because they want you to use AVS. Sideloaded Google Play + Google app adds Google ASR | Kindle Fire 7
-RTAndroid	| ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
+iOS 10, 11 | ✅ | ✅ | Fully Supported | iPhone 6S, iPad Mini 2
+Android 7, 8 | ✅ | ✅ | Fully Supported | Google Pixel
+FireOS 5.4 | ✅ | ✅ | Android SpeechRecognizer unsupported because they want you to use AVS. Sideloaded Google Play + Google app adds Google ASR | Kindle Fire 7
+RTAndroid	7.1 | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
 Geek Till It Hertz 7.1.1 | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
-emteria.OS | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
-Android Things | ❌ | ✅ | Voice system unsupported | Raspberry Pi 3
+emteria.OS  | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
+Android Things 0.5.1 | ❌ | ✅ | Voice system unsupported | Raspberry Pi 3
