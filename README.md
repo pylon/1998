@@ -47,3 +47,4 @@ FireOS 5.4 | ✅ | ✅ | Android SpeechRecognizer unsupported because they want 
 [Geek Till It Hertz 7.1.1](http://geektillithertz.com/wordpress/index.php/2017/01/23/and-7-1-1-tablet-raspberry-pi/) | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
 [emteria.OS](https://emteria.com/)  | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
 [Android Things](https://developer.android.com/things/sdk/index.html) 0.5.1 | ❌ | ✅ | Voice system unsupported | Raspberry Pi 3
+Raspbian Linux | ❌ | ❌ | Audio system unsupported | Raspberry Pi 3
