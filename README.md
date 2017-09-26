@@ -24,10 +24,17 @@ The experiment relied on platform-provided ASR and TTS services, and did not att
 Unimplemented
 
 ### ASR
-Platform-supplied. Tested using Google Voice and Apple Siri.
+Platform-supplied. Tested using [Google Voice](https://developer.android.com/reference/android/speech/RecognitionService.html) and Apple Siri.
+
+Other native ASR options: [Alexa on Android](https://github.com/alexa/alexa-avs-sample-app/blob/master/samples/javaclient/src/main/java/com/amazon/alexa/avs/AVSController.java), [Pocketsphinx](http://nilhcem.com/android-things/control-your-devices-through-voice-with-usb-audio-support).
+
+### TTS
+Platform-supplied. Tested using [Google's Android.speech.tts](https://developer.android.com/reference/android/speech/tts/TextToSpeech.html) and Apple Speech
 
 ## Frontend
-React Native, using React Native Voice and React Native TTS.
+React Native, using [React Native Voice](https://github.com/wenkesj/react-native-voice) and [React Native TTS](https://github.com/ak1394/react-native-tts).
+
+Other react options: [React Native STT](https://github.com/anto2318/ReactNativeSTT), [React Native Speech](https://github.com/naoufal/react-native-speech), [react-native-bluemix](https://github.com/pwcremin/react-native-bluemix)
 
 ## Platforms
 
@@ -36,7 +43,7 @@ OS  | ASR | TTS | Status | Devices
 iOS 10, 11 | ✅ | ✅ | Fully Supported | iPhone 6S, iPad Mini 2
 Android 7, 8 | ✅ | ✅ | Fully Supported | Google Pixel
 FireOS 5.4 | ✅ | ✅ | Android SpeechRecognizer unsupported because they want you to use AVS. Sideloaded Google Play + Google app adds Google ASR | Kindle Fire 7
-RTAndroid	7.1 | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
-Geek Till It Hertz 7.1.1 | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
-emteria.OS  | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
-Android Things 0.5.1 | ❌ | ✅ | Voice system unsupported | Raspberry Pi 3
+[RTAndroid	7.1](https://rtandroid.embedded.rwth-aachen.de/downloads/raspberry-pi/) | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
+[Geek Till It Hertz 7.1.1](http://geektillithertz.com/wordpress/index.php/2017/01/23/and-7-1-1-tablet-raspberry-pi/) | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
+[emteria.OS](https://emteria.com/)  | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
+[Android Things](https://developer.android.com/things/sdk/index.html) 0.5.1 | ❌ | ✅ | Voice system unsupported | Raspberry Pi 3
