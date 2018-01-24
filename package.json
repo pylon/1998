@@ -40,6 +40,23 @@
 		}
 	},
 	"jest": {
-		"preset": "react-native"
+		"preset": "react-native",
+		"coveragePathIgnorePatterns": [
+			"/node_modules/",
+			"jest-setup.js",
+			"env.js",
+			"<rootDir>/app/index.js",
+			"<rootDir>/index.ios.js",
+			"<rootDir>/index.android.js"
+		],
+		"testPathIgnorePatterns": [
+			"/node_modules/"
+		],
+		"setupFiles": [
+			"<rootDir>/jest-setup.js"
+		],
+		"transformIgnorePatterns": [
+			"/node_modules/(?!(jest-)?react-native|react-navigation|react-clone-referenced-element)"
+		]
 	}
 }

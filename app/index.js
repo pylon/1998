@@ -15,7 +15,9 @@ export default class NineteenNinetyEight extends Component {
     this.state = {
       status: 'waiting',
       support: '',
-      results: ['In 1998 The Undertaker threw Mankind']
+      results: ['In 1998 The Undertaker threw Mankind'],
+      utterance: '',
+      intent: ''
     }
     this.onIsAvailable = this.onIsAvailable.bind(this)
   }
@@ -42,13 +44,21 @@ export default class NineteenNinetyEight extends Component {
     this.setState({ status: s })
   }
 
+  onClassificationChange (r) {
+    this.setState({ utterance: r.utterance, intent: r.intent })
+  }
+
   render () {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
           In 1998...
         </Text>
-        <TalkButton statusChange={(status) => this.onStatusChange(status)} resultsChange={(results) => this.onResultsChange(results)} />
+        <TalkButton
+          statusChange={(status) => this.onStatusChange(status)}
+          resultsChange={(results) => this.onResultsChange(results)}
+          classificationChange={(result) => this.onClassificationChange(result)}
+        />
         <Text style={styles.instructions}>
           {`ASR: ${this.state.support}`}
         </Text>
@@ -62,6 +72,9 @@ export default class NineteenNinetyEight extends Component {
             </Text>
           )
         })}
+        <Text style={styles.stat}>
+          {`Intent: ${this.state.intent}`}
+        </Text>
         <SpeakButton results={this.state.results} />
       </View>
     )
@@ -71,12 +84,17 @@ export default class NineteenNinetyEight extends Component {
 class TalkButton extends Component {
   /* A button that performs speech to text when pressed.
      Props:
-       statusChange (function): a callback for updating asr status
-       resultsChange (function): a callback for updating asr results
+     statusChange (function): a callback for updating asr status
+     resultsChange (function): a callback for updating asr results
    */
 
   constructor (props) {
     super(props)
+    this.state = {
+      auth_url: 'https://d62a308c.ngrok.io/user/v1/login',
+      classifier_url: 'https://d62a308c.ngrok.io/intent/v1/classify/pylon-bartender/development?utterance=',
+      auth_token: ''
+    }
     // apple fails to ever deliver a utterance-end event and instead listens
     // until timeout (1 minute). We must stop() ourselves, or wait the full minute.
     // Further, Voice.isRecognizing() isn't set correctly on iOS, so we can't be
@@ -92,6 +110,10 @@ class TalkButton extends Component {
     Voice.onSpeechResults = this.onSpeechResults.bind(this)
     Voice.onSpeechPartialResults = this.onSpeechPartialResults.bind(this)
     Voice.onSpeechVolumeChanged = this.onSpeechVolumeChanged.bind(this)
+  }
+
+  componentDidMount () {
+    this.setAuthToken()
   }
 
   // button events
@@ -111,6 +133,38 @@ class TalkButton extends Component {
 
   onResultsChange (r) {
     this.props.resultsChange(r)
+  }
+
+  onClassifyResult (r) {
+    this.props.classificationChange(r)
+  }
+
+  // NLU
+
+  setAuthToken () {
+    let promise = fetch(this.state.auth_url, {method: 'POST'})
+    promise.then((response) => {
+      const authToken = response.headers && response.headers.get('X-Authorization')
+      console.log('Login result: ' + authToken)
+      this.setState({ auth_token: authToken })
+    })
+    promise.catch((error) => this.props.statusChange(error))
+  }
+
+  classifyResults (r) {
+    let promise = fetch(this.state.classifier_url + r, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.state.auth_token}})
+    promise.then((response) => {
+      const resultStream = response.json()
+      resultStream.then((result) => {
+        console.log('Classifier result: ' + result)
+        this.onClassifyResult(result)
+      })
+    })
+    promise.catch((error) => this.props.statusChange(error))
   }
 
   // voice events
@@ -137,6 +191,7 @@ class TalkButton extends Component {
   onSpeechResults (e) {
     this.onResultsChange(e.value)
     console.log('results: ' + e.value)
+    this.classifyResults(e.value)
   }
   onSpeechPartialResults (e) {
     this.onResultsChange(e.value)
