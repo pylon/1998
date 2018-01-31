@@ -15,9 +15,9 @@ export default class NineteenNinetyEight extends Component {
     this.state = {
       status: 'waiting',
       support: '',
-      results: ['In 1998 The Undertaker threw Mankind'],
-      utterance: '',
-      intent: ''
+      results: [],
+      final_results: '',
+      response: ''
     }
     this.onIsAvailable = this.onIsAvailable.bind(this)
   }
@@ -40,12 +40,18 @@ export default class NineteenNinetyEight extends Component {
     this.setState({ results: r })
   }
 
+  onRecognitionDone () {
+    if (this.state.results && this.state.results[0]) {
+      this.setState({ final_results: this.state.results[0].toString() })
+    }
+  }
+
   onStatusChange (s) {
     this.setState({ status: s })
   }
 
-  onClassificationChange (r) {
-    this.setState({ utterance: r.utterance, intent: r.intent })
+  onResponseChange (r) {
+    this.setState({ response: r })
   }
 
   render () {
@@ -57,7 +63,7 @@ export default class NineteenNinetyEight extends Component {
         <TalkButton
           statusChange={(status) => this.onStatusChange(status)}
           resultsChange={(results) => this.onResultsChange(results)}
-          classificationChange={(result) => this.onClassificationChange(result)}
+          done={(results) => this.onRecognitionDone()}
         />
         <Text style={styles.instructions}>
           {`ASR: ${this.state.support}`}
@@ -72,11 +78,100 @@ export default class NineteenNinetyEight extends Component {
             </Text>
           )
         })}
+        <PylonNLU
+          asr_results={this.state.final_results || ''}
+          statusChange={(status) => this.onStatusChange(status)}
+          responseChange={(r) => this.onResponseChange(r)}
+        />
         <Text style={styles.stat}>
-          {`Intent: ${this.state.intent}`}
+          {`Response: ${this.state.response}`}
         </Text>
-        <SpeakButton results={this.state.results} />
+        <SpeakButton results={this.state.response} />
       </View>
+    )
+  }
+}
+
+class PylonNLU extends Component {
+  /* PylonNLU
+   */
+
+  constructor (props) {
+    super(props)
+    this.state = {
+      auth_url: 'https://d62a308c.ngrok.io/user/v1/login',
+      nlu_url: 'https://d62a308c.ngrok.io/nlu/v2/pylon/pylon-bartender/development',
+      auth_token: '',
+      user_agent: '',
+      utterance: ''
+    }
+  }
+
+  // Component Events
+
+  onNLUResponse (r) {
+    this.props.responseChange(r)
+  }
+
+  // NLU
+
+  login () {
+    let promise = fetch(this.state.auth_url, {method: 'POST'})
+    promise.then((response) => {
+      const authToken = response.headers && response.headers.get('X-Authorization')
+      const responseStream = response.json()
+      responseStream.then((result) => {
+        console.log('login body: ' + result.user_id)
+        this.setState({ user_agent: result.user_id })
+      })
+      console.log('Login auth header: ' + authToken)
+      this.setState({ auth_token: authToken })
+    })
+    promise.catch((error) => this.props.statusChange(error))
+  }
+
+  getNLUResponse (utterance) {
+    let promise = fetch(this.state.nlu_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.state.auth_token},
+      body: JSON.stringify({
+        token: this.state.auth_token,
+        agentId: this.state.user_agent,
+        utterance: this.state.utterance,
+        bimodal: false,
+        locale: 'en-US'
+      })
+    })
+    promise.then((response) => {
+      const responseStream = response.json()
+      responseStream.then((result) => {
+        console.log('NLU Response: ' + result.message)
+        this.onNLUResponse(result.message.replace(/<\/?[^>]+(>|$)/g, ''))
+      })
+    })
+    promise.catch((error) => this.props.statusChange(error))
+  }
+
+  // React Events
+
+  componentDidMount () {
+    this.login()
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.asr_results !== this.state.utterance) {
+      this.setState({ utterance: nextProps.asr_results })
+      this.getNLUResponse(this.state.utterance)
+    }
+  }
+
+  render () {
+    return (
+      <Text style={styles.stat}>
+        {`ASR: ${this.state.utterance}`}
+      </Text>
     )
   }
 }
@@ -90,11 +185,6 @@ class TalkButton extends Component {
 
   constructor (props) {
     super(props)
-    this.state = {
-      auth_url: 'https://d62a308c.ngrok.io/user/v1/login',
-      classifier_url: 'https://d62a308c.ngrok.io/intent/v1/classify/pylon-bartender/development?utterance=',
-      auth_token: ''
-    }
     // apple fails to ever deliver a utterance-end event and instead listens
     // until timeout (1 minute). We must stop() ourselves, or wait the full minute.
     // Further, Voice.isRecognizing() isn't set correctly on iOS, so we can't be
@@ -113,7 +203,14 @@ class TalkButton extends Component {
   }
 
   componentDidMount () {
-    this.setAuthToken()
+  }
+
+  // timer events
+
+  onUtteranceTimeout () {
+    Voice.stop()
+    console.log('done')
+    this.props.done()
   }
 
   // button events
@@ -122,7 +219,7 @@ class TalkButton extends Component {
     /* Performs asr */
     const error = Voice.start('en-US')
     if (error) console.log(error)
-    this.utteranceTimer = setTimeout(() => Voice.stop(), this.utteranceTimeout)
+    this.utteranceTimer = setTimeout(() => this.onUtteranceTimeout(), this.utteranceTimeout)
   }
 
   // parent events
@@ -135,38 +232,6 @@ class TalkButton extends Component {
     this.props.resultsChange(r)
   }
 
-  onClassifyResult (r) {
-    this.props.classificationChange(r)
-  }
-
-  // NLU
-
-  setAuthToken () {
-    let promise = fetch(this.state.auth_url, {method: 'POST'})
-    promise.then((response) => {
-      const authToken = response.headers && response.headers.get('X-Authorization')
-      console.log('Login result: ' + authToken)
-      this.setState({ auth_token: authToken })
-    })
-    promise.catch((error) => this.props.statusChange(error))
-  }
-
-  classifyResults (r) {
-    let promise = fetch(this.state.classifier_url + r, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.state.auth_token}})
-    promise.then((response) => {
-      const resultStream = response.json()
-      resultStream.then((result) => {
-        console.log('Classifier result: ' + result)
-        this.onClassifyResult(result)
-      })
-    })
-    promise.catch((error) => this.props.statusChange(error))
-  }
-
   // voice events
 
   onSpeechStart (e) {
@@ -176,7 +241,7 @@ class TalkButton extends Component {
   }
   onSpeechRecognized (e) {
     clearTimeout(this.utteranceTimer)
-    this.utteranceTimer = setTimeout(() => Voice.stop(), this.utteranceTimeout)
+    this.utteranceTimer = setTimeout(() => this.onUtteranceTimeout(), this.utteranceTimeout)
     this.onStatusChange('recognized')
     console.log('recognized')
   }
@@ -191,20 +256,18 @@ class TalkButton extends Component {
   onSpeechResults (e) {
     this.onResultsChange(e.value)
     console.log('results: ' + e.value)
-    this.classifyResults(e.value)
   }
   onSpeechPartialResults (e) {
     this.onResultsChange(e.value)
     console.log('partial results: ' + e.value)
   }
   onSpeechVolumeChanged (e) {
-    this.onResultsChange(e.value)
     console.log('volume change: ' + e.value)
   }
 
   render () {
     return (
-      <Button title='Talk!' onPress={this.onTalk} accessibilityLabel='Talk to me' />
+      <Button title='Talk!' onPress={() => this.onTalk()} accessibilityLabel='Talk to me' />
     )
   }
 }
@@ -230,7 +293,7 @@ class SpeakButton extends Component {
 
   render () {
     return (
-      <Button title='Speak!' onPress={() => this.onSpeak(this.props.results[0])} accessibilityLabel='Speak to me' />
+      <Button title='Speak!' onPress={() => this.onSpeak(this.props.results)} accessibilityLabel='Speak to me' />
     )
   }
 }
