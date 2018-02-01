@@ -79,7 +79,7 @@ export default class NineteenNinetyEight extends Component {
           )
         })}
         <PylonNLU
-          asr_results={this.state.final_results || ''}
+          asr_results={this.state.final_results}
           statusChange={(status) => this.onStatusChange(status)}
           responseChange={(r) => this.onResponseChange(r)}
         />
@@ -139,7 +139,7 @@ class PylonNLU extends Component {
       body: JSON.stringify({
         token: this.state.auth_token,
         agentId: this.state.user_agent,
-        utterance: this.state.utterance,
+        utterance: utterance,
         bimodal: false,
         locale: 'en-US'
       })
@@ -163,7 +163,7 @@ class PylonNLU extends Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.asr_results !== this.state.utterance) {
       this.setState({ utterance: nextProps.asr_results })
-      this.getNLUResponse(this.state.utterance)
+      this.getNLUResponse(nextProps.asr_results)
     }
   }
 
