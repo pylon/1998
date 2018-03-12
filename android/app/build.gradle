@@ -133,6 +133,7 @@ android {
 }
 
 dependencies {
+    compile project(':spokestack-react-native')
     compile project(':react-native-voice')
     compile project(':react-native-tts')
     compile fileTree(dir: "libs", include: ["*.jar"])

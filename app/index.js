@@ -8,6 +8,7 @@ import {
 } from 'react-native'
 import Voice from 'react-native-voice'
 import Tts from 'react-native-tts'
+import Spokestack from 'spokestack-react-native'
 
 export default class NineteenNinetyEight extends Component {
   constructor (props) {
@@ -60,6 +61,10 @@ export default class NineteenNinetyEight extends Component {
         <Text style={styles.welcome}>
           In 1998...
         </Text>
+        <SpokestackButton>
+          statusChange={(status) => this.onStatusChange(status)}
+          resultsChange={(results) => this.onResultsChange(results)}
+        </SpokestackButton>
         <TalkButton
           statusChange={(status) => this.onStatusChange(status)}
           resultsChange={(results) => this.onResultsChange(results)}
@@ -99,8 +104,8 @@ class PylonNLU extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      auth_url: 'https://d62a308c.ngrok.io/user/v1/login',
-      nlu_url: 'https://d62a308c.ngrok.io/nlu/v2/pylon/pylon-bartender/development',
+      auth_url: 'http://localhost:4000/user/v1/login',
+      nlu_url: 'http://localhost:4000/nlu/v2/pylon/pylon-bartender/development',
       auth_token: '',
       user_agent: '',
       utterance: ''
@@ -172,6 +177,69 @@ class PylonNLU extends Component {
       <Text style={styles.stat}>
         {`ASR: ${this.state.utterance}`}
       </Text>
+    )
+  }
+}
+
+class SpokestackButton extends Component {
+  constructor (props) {
+    super(props)
+    this.activtyTimer = null
+    this.activityTimeout = 20
+    Spokestack.onSpeechStart = this.onSpeechStart.bind(this)
+    Spokestack.onSpeechEnd = this.onSpeechEnd.bind(this)
+    Spokestack.onSpeechResults = this.onSpeechResults.bind(this)
+  }
+
+  componentDidMount () {
+  }
+
+  onStart () {
+    this.activtyTimer = setTimeout(() => this.onActivityTimeout(), this.activityTimeout)
+    Spokestack.initialize('')
+    Spokestack.start()
+  }
+
+  onStop () {
+    Spokestack.stop()
+  }
+
+  onStatusChange (s) {
+    this.props.statusChange(s)
+  }
+
+  onResultsChange (r) {
+    this.props.resultsChange(r)
+  }
+
+  onActivityTimeout () {
+    if (Spokestack.isActive()) {
+      console.log('speech activity detected')
+      this.props.statusChange('spakeing')
+      clearTimeout(this.activtyTimer)
+      this.activtyTimer = setTimeout(() => this.onActivityTimeout(), this.activityTimeout)
+    }
+  }
+
+  onSpeechStart (e) {
+    this.onStatusChange('started')
+    this.onResultsChange([])
+    console.log('started')
+  }
+  onSpeechResults (e) {
+    var results = this.Spokestack.transcript()
+    this.onResultsChange(results)
+    console.log('results: ' + results)
+  }
+  onSpeechEnd (e) {
+    this.onStatusChange('ended')
+    this.onResultsChange([])
+    console.log('stopped')
+  }
+
+  render () {
+    return (
+      <Button title='Spake!' onPress={() => this.onStart()} accessibilityLabel='Spake to me' />
     )
   }
 }
