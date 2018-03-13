@@ -8,7 +8,7 @@ import {
 } from 'react-native'
 import Voice from 'react-native-voice'
 import Tts from 'react-native-tts'
-import Spokestack from 'spokestack-react-native'
+import RNSpokestack from 'spokestack-react-native'
 
 export default class NineteenNinetyEight extends Component {
   constructor (props) {
@@ -61,10 +61,10 @@ export default class NineteenNinetyEight extends Component {
         <Text style={styles.welcome}>
           In 1998...
         </Text>
-        <SpokestackButton>
+        <SpokestackButton
           statusChange={(status) => this.onStatusChange(status)}
           resultsChange={(results) => this.onResultsChange(results)}
-        </SpokestackButton>
+        />
         <TalkButton
           statusChange={(status) => this.onStatusChange(status)}
           resultsChange={(results) => this.onResultsChange(results)}
@@ -77,11 +77,11 @@ export default class NineteenNinetyEight extends Component {
           {`Status: ${this.state.status}`}
         </Text>
         {this.state.results.map((result, index) => {
-          return (
-            <Text key={`result-${index}`} style={styles.stat}>
-              {index + 1}: {result}
-            </Text>
-          )
+           return (
+             <Text key={`result-${index}`} style={styles.stat}>
+               {index + 1}: {result}
+             </Text>
+           )
         })}
         <PylonNLU
           asr_results={this.state.final_results}
@@ -185,10 +185,10 @@ class SpokestackButton extends Component {
   constructor (props) {
     super(props)
     this.activtyTimer = null
-    this.activityTimeout = 20
-    Spokestack.onSpeechStart = this.onSpeechStart.bind(this)
-    Spokestack.onSpeechEnd = this.onSpeechEnd.bind(this)
-    Spokestack.onSpeechResults = this.onSpeechResults.bind(this)
+    this.activityTimeout = 5000
+    RNSpokestack.onSpeechStart = this.onSpeechStart.bind(this)
+    RNSpokestack.onSpeechEnd = this.onSpeechEnd.bind(this)
+    RNSpokestack.onSpeechRecognized = this.onSpeechRecognized.bind(this)
   }
 
   componentDidMount () {
@@ -196,12 +196,12 @@ class SpokestackButton extends Component {
 
   onStart () {
     this.activtyTimer = setTimeout(() => this.onActivityTimeout(), this.activityTimeout)
-    Spokestack.initialize('')
-    Spokestack.start()
+    RNSpokestack.initialize('')
+    RNSpokestack.start()
   }
 
   onStop () {
-    Spokestack.stop()
+    RNSpokestack.stop()
   }
 
   onStatusChange (s) {
@@ -213,28 +213,22 @@ class SpokestackButton extends Component {
   }
 
   onActivityTimeout () {
-    if (Spokestack.isActive()) {
-      console.log('speech activity detected')
-      this.props.statusChange('spakeing')
-      clearTimeout(this.activtyTimer)
-      this.activtyTimer = setTimeout(() => this.onActivityTimeout(), this.activityTimeout)
-    }
+    this.onStop()
   }
 
   onSpeechStart (e) {
     this.onStatusChange('started')
     this.onResultsChange([])
-    console.log('started')
+    console.log('spokestack speech started')
   }
-  onSpeechResults (e) {
-    var results = this.Spokestack.transcript()
-    this.onResultsChange(results)
-    console.log('results: ' + results)
+  onSpeechRecognized (e) {
+    this.onResultsChange(e.transcript)
+    console.log('results: ' + e.transcript)
   }
   onSpeechEnd (e) {
     this.onStatusChange('ended')
     this.onResultsChange([])
-    console.log('stopped')
+    console.log('spokestack speech ended')
   }
 
   render () {
