@@ -1,6 +1,8 @@
 # 1998
 https://www.reddit.com/r/pics/comments/5oyhfy/salt_squared/dcn6dk1/
 
+A simple copycat app that will listen for what you say and repeat it back.
+
 ## Run
 ```
 npm install
@@ -48,3 +50,19 @@ FireOS 5.4 | ✅ | ✅ | Android SpeechRecognizer unsupported because they want 
 [emteria.OS](https://emteria.com/)  | ❌ | ✅ | Audio system unsupported | Raspberry Pi 3
 [Android Things](https://developer.android.com/things/sdk/index.html) 0.5.1 | ❌ | ✅ | Voice system unsupported | Raspberry Pi 3
 Raspbian Linux | ❌ | ❌ | Audio system unsupported | Raspberry Pi 3
+
+## License
+
+Copyright 2018 Pylon, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
